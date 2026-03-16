@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manyoni Ridge — Vision Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f0ea; min-height: 100vh; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-thumb { background: #c8b49a; border-radius: 3px; }
+
+  /* Header */
+  #header { background: #1a1208; padding: 0 24px; }
+  #header-inner { max-width: 1360px; margin: 0 auto; }
+  #header-top { display: flex; align-items: center; gap: 14px; padding: 18px 0 12px; flex-wrap: wrap; }
+  #header-title .eyebrow { font-size: 10px; letter-spacing: 3.5px; color: #c8b49a; font-family: monospace; margin-bottom: 3px; }
+  #header-title h1 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 900; color: #fff; }
+  #user-select-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  #user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #c8b49a; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1a1208; font-size: 13px; flex-shrink: 0; }
+  #user-select { background: #2a1e0e; color: #f0e6d6; border: 1px solid #3d3020; border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  #add-btn { background: #c8b49a; color: #1a1208; border: none; border-radius: 10px; padding: 10px 18px; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  #vote-totals { display: flex; gap: 20px; padding-bottom: 14px; border-top: 1px solid #2d2010; padding-top: 10px; flex-wrap: wrap; align-items: center; }
+  .vote-total { display: flex; align-items: center; gap: 8px; }
+  .vote-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; font-size: 13px; flex-shrink: 0; }
+  .vote-total-num { font-size: 18px; font-weight: 700; color: #f0e6d6; }
+  .vote-total-desc { font-size: 11px; color: #887060; margin-left: 4px; }
+  #items-count { margin-left: auto; color: #887060; font-size: 12px; }
+
+  /* Add Panel */
+  #add-panel { background: #fff; border-bottom: 2px solid #ede8e0; padding: 20px 24px; display: none; }
+  #add-panel.open { display: block; animation: slideIn 0.22s ease; }
+  @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  #add-panel-inner { max-width: 1360px; margin: 0 auto; }
+  .mode-tabs { display: flex; background: #f5f0ea; border-radius: 10px; padding: 4px; width: fit-content; margin-bottom: 16px; }
+  .mode-tab { padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; background: transparent; color: #aaa; font-family: inherit; transition: all 0.15s; }
+  .mode-tab.active { background: #fff; color: #1a1208; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+  .add-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .add-field { display: flex; flex-direction: column; gap: 6px; }
+  .add-field label { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: 1px; }
+  .add-field input, .add-field select { padding: 11px 13px; border: 2px solid #ede8e0; border-radius: 10px; font-size: 14px; outline: none; font-family: inherit; transition: border 0.2s; background: #fff; }
+  .add-field input:focus, .add-field select:focus { border-color: #c8b49a; }
+  .add-hint { margin-top: 8px; font-size: 12px; color: #bbb; }
+  .btn-save { padding: 12px 22px; color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .btn-save:disabled { background: #ccc !important; cursor: not-allowed; }
+
+  /* Filter bar */
+  #filter-bar { background: #fff; border-bottom: 1px solid #ede8e0; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 8px rgba(0,0,0,0.04); }
+  #filter-inner { max-width: 1360px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; overflow-x: auto; gap: 0; }
+  .cat-tab { padding: 13px 14px; border: none; background: none; cursor: pointer; font-size: 13px; color: #aaa; border-bottom: 2px solid transparent; white-space: nowrap; font-family: inherit; font-weight: 500; transition: all 0.15s; flex-shrink: 0; }
+  .cat-tab.active { color: #1a1208; font-weight: 700; border-bottom-color: #c8b49a; }
+  .cat-count { font-size: 10px; color: #ccc; margin-left: 4px; }
+  #filter-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding: 6px 0; }
+  #search-input { padding: 6px 12px; border: 1px solid #ede8e0; border-radius: 20px; font-size: 13px; outline: none; width: 140px; font-family: inherit; }
+  #sort-select { padding: 6px 10px; border: 1px solid #ede8e0; border-radius: 8px; font-size: 12px; color: #888; background: #fff; cursor: pointer; font-family: inherit; }
+
+  /* Grid */
+  #grid-wrap { max-width: 1360px; margin: 0 auto; padding: 22px 24px 80px; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; }
+  .card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(60,35,10,0.07); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; animation: fadeUp 0.3s ease both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(60,35,10,0.13); }
+  .card-img { position: relative; height: 185px; background: #f0ebe3; cursor: pointer; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+  .card-img img.preview { width: 100%; height: 100%; object-fit: cover; object-position: top; position: absolute; inset: 0; opacity: 0; transition: opacity 0.35s; }
+  .card-img img.preview.loaded { opacity: 1; }
+  .card-img .fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; z-index: 1; }
+  .card-img .fallback .emoji { font-size: 34px; }
+  .card-img .domain-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.8); border-radius: 20px; padding: 4px 12px; }
+  .card-img .domain-pill img { width: 14px; height: 14px; }
+  .card-img .domain-pill span { font-size: 11px; color: #666; font-family: monospace; }
+  .cat-pill { position: absolute; top: 10px; left: 10px; color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; z-index: 2; }
+  .photo-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.4); color: #fff; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; z-index: 2; }
+  .my-vote-badge { position: absolute; bottom: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 2; }
+  .card-body { padding: 13px 15px 8px; flex: 1; display: flex; flex-direction: column; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: #1a1208; line-height: 1.35; margin-bottom: 4px; text-decoration: none; display: block; }
+  .card-domain { display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
+  .card-domain img { width: 13px; height: 13px; }
+  .card-domain span { font-size: 11px; color: #bbb; font-family: monospace; }
+  .card-meta { font-size: 11px; color: #c8b49a; margin-bottom: 2px; }
+  .card-meta strong { color: #a08060; }
+  .vote-bar-wrap { margin-top: 10px; }
+  .vote-bar-track { display: flex; border-radius: 4px; overflow: hidden; height: 5px; background: #eee; }
+  .vote-bar-seg { height: 100%; transition: width 0.4s; }
+  .vote-bar-labels { display: flex; gap: 12px; margin-top: 5px; }
+  .vote-bar-label { font-size: 11px; font-weight: 700; }
+  .vote-no { font-size: 11px; color: #bbb; margin-top: 8px; font-style: italic; }
+  .vote-btns { display: flex; gap: 6px; margin-top: 10px; }
+  .vote-btn { flex: 1; padding: 7px 0; cursor: pointer; border-radius: 8px; font-weight: 900; font-size: 15px; transition: all 0.15s; font-family: inherit; border: 2px solid #ece7e0; background: #faf8f5; color: #bbb; }
+  .card-footer { padding: 2px 15px 10px; display: flex; justify-content: flex-end; }
+  .remove-btn { background: none; border: none; cursor: pointer; color: #ddd; font-size: 11px; font-family: inherit; }
+  .remove-btn:hover { color: #c00; }
+
+  /* Empty / Loading / Error states */
+  .state-box { text-align: center; padding: 80px 20px; }
+  .state-box .icon { font-size: 48px; margin-bottom: 14px; }
+  .state-box h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: #7a6048; margin-bottom: 8px; }
+  .state-box p { color: #bbb; font-size: 14px; }
+  .error-box { background: #fff5f5; border-radius: 16px; max-width: 520px; margin: 40px auto; padding: 40px 32px; text-align: center; }
+  .error-box .icon { font-size: 32px; margin-bottom: 10px; }
+  .error-box h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: #b00; margin-bottom: 8px; }
+  .error-box .err-msg { font-size: 13px; color: #888; background: #f9f9f9; padding: 10px 14px; border-radius: 8px; margin: 12px 0; text-align: left; word-break: break-all; }
+  .error-box .retry-btn { margin-top: 14px; background: #1a1208; color: #fff; border: none; border-radius: 10px; padding: 10px 24px; cursor: pointer; font-weight: 700; font-size: 14px; font-family: inherit; }
+
+  /* Lightbox */
+  #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  #lightbox.open { display: flex; }
+  #lightbox-inner { max-width: 900px; width: 100%; background: #fff; border-radius: 16px; overflow: hidden; }
+  #lightbox-img { width: 100%; max-height: 78vh; object-fit: contain; background: #111; display: block; }
+  #lightbox-footer { padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  #lightbox-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16px; }
+  #lightbox-meta { font-size: 12px; color: #aaa; margin-top: 2px; }
+  #lightbox-close { background: #1a1208; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-weight: 600; font-family: inherit; }
+
+  /* Vote key */
+  #vote-key { position: fixed; bottom: 20px; right: 20px; background: #1a1208; border-radius: 12px; padding: 10px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.22); }
+  .vote-key-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .vote-key-label { font-weight: 900; font-size: 13px; width: 14px; }
+  .vote-key-desc { font-size: 11px; color: #887060; }
+
+  @media (max-width: 600px) {
+    #header-top { gap: 10px; }
+    #header-title h1 { font-size: 20px; }
+    #grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    #vote-key { display: none; }
+  }
+  @media (max-width: 420px) {
+    #grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="header-inner">
+    <div id="header-top">
+      <div id="header-title">
+        <div class="eyebrow">MANYONI RIDGE · LODGE OPENING</div>
+        <h1>Vision Board</h1>
+      </div>
+      <div id="user-select-wrap">
+        <div id="user-avatar">D</div>
+        <select id="user-select">
+          <option>Dylan</option><option>Noel</option><option>Kirsten</option>
+          <option>Justin</option><option>Tracy</option><option>Candice</option><option>Ashleigh</option>
+        </select>
+      </div>
+      <button id="add-btn">+ Add Idea</button>
+    </div>
+    <div id="vote-totals">
+      <div class="vote-total">
+        <div class="vote-circle" style="background:#2d6a4f">A</div>
+        <div><span class="vote-total-num" id="total-A">0</span><span class="vote-total-desc">Love it — must do</span></div>
+      </div>
+      <div class="vote-total">
+        <div class="vote-circle" style="background:#b5451b">B</div>
+        <div><span class="vote-total-num" id="total-B">0</span><span class="vote-total-desc">Good idea, maybe</span></div>
+      </div>
+      <div class="vote-total">
+        <div class="vote-circle" style="background:#7a6652">C</div>
+        <div><span class="vote-total-num" id="total-C">0</span><span class="vote-total-desc">Not for us</span></div>
+      </div>
+      <div id="items-count">0 ideas saved</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PANEL -->
+<div id="add-panel">
+  <div id="add-panel-inner">
+    <div class="add-row" style="margin-bottom:12px">
+      <div class="add-field" style="flex:2;min-width:240px">
+        <label>URL (optional)</label>
+        <input type="url" id="url-input" placeholder="https://...">
+      </div>
+      <div class="add-field" style="flex:1;min-width:180px">
+        <label>TITLE (optional)</label>
+        <input type="text" id="title-input" placeholder="e.g. Firepit inspiration...">
+      </div>
+      <div class="add-field" style="min-width:150px">
+        <label>CATEGORY</label>
+        <select id="link-cat-select"></select>
+      </div>
+    </div>
+    <div class="add-row" style="align-items:center">
+      <div id="photo-attach-area" style="flex:1;min-width:220px;border:2px dashed #e0d8ce;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;background:#faf8f5;transition:border 0.2s">
+        <span style="font-size:22px;flex-shrink:0">📷</span>
+        <div style="min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#a08060">Attach photo / screenshot</div>
+          <div style="font-size:11px;color:#bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="photo-attach-label">Optional — tap to choose image(s)</div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" multiple style="display:none">
+      </div>
+      <button class="btn-save" id="save-btn" style="background:#2d6a4f;min-width:120px">Save Idea</button>
+    </div>
+    <div id="photo-previews" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"></div>
+    <div class="add-hint">💡 Add a URL, a photo, or both — at least one is required</div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div id="filter-bar">
+  <div id="filter-inner">
+    <button class="cat-tab active" data-cat="All">All</button>
+    <button class="cat-tab" data-cat="Curio">Curio <span class="cat-count" data-cat="Curio"></span></button>
+    <button class="cat-tab" data-cat="Decor">Decor <span class="cat-count" data-cat="Decor"></span></button>
+    <button class="cat-tab" data-cat="Food & Bev">Food & Bev <span class="cat-count" data-cat="Food & Bev"></span></button>
+    <button class="cat-tab" data-cat="Experience">Experience <span class="cat-count" data-cat="Experience"></span></button>
+    <button class="cat-tab" data-cat="Operations">Operations <span class="cat-count" data-cat="Operations"></span></button>
+    <button class="cat-tab" data-cat="Leadership">Leadership <span class="cat-count" data-cat="Leadership"></span></button>
+    <button class="cat-tab" data-cat="General">General <span class="cat-count" data-cat="General"></span></button>
+    <div id="filter-right">
+      <input type="text" id="search-input" placeholder="Search...">
+      <select id="sort-select">
+        <option value="newest">Newest</option>
+        <option value="votes">Most voted</option>
+        <option value="A">Top A</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- GRID -->
+<div id="grid-wrap">
+  <div id="grid"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div id="lightbox-inner">
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-footer">
+      <div>
+        <div id="lightbox-title"></div>
+        <div id="lightbox-meta"></div>
+      </div>
+      <button id="lightbox-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- VOTE KEY -->
+<div id="vote-key">
+  <div class="vote-key-row"><span class="vote-key-label" style="color:#2d6a4f">A</span><span class="vote-key-desc">Love it — must do</span></div>
+  <div class="vote-key-row"><span class="vote-key-label" style="color:#b5451b">B</span><span class="vote-key-desc">Good idea, maybe</span></div>
+  <div class="vote-key-row"><span class="vote-key-label" style="color:#7a6652">C</span><span class="vote-key-desc">Not for us</span></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://piiqynherttfgrnlolcm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Fr8mcUZFO4BN7-S3Nxtg-Q_58EW-lka";
+
+const CATEGORIES = ["Curio","Decor","Food & Bev","Experience","Operations","Leadership","General"];
+const CAT_COLORS = { Curio:"#7b4f2e", Leadership:"#2d6a4f", Decor:"#9b5de5", General:"#457b9d", "Food & Bev":"#e07a5f", Experience:"#c8963e", Operations:"#3d405b" };
+const CAT_EMOJIS = { Curio:"🦁", Leadership:"🌿", Decor:"🪵", General:"📌", "Food & Bev":"🍽️", Experience:"🌄", Operations:"⚙️" };
+const VOTES_CONFIG = [
+  { label:"A", color:"#2d6a4f", bg:"#d8f3dc" },
+  { label:"B", color:"#b5451b", bg:"#fde8d8" },
+  { label:"C", color:"#7a6652", bg:"#ede8e3" },
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+let items = [];
+let currentUser = "Dylan";
+let activeCategory = "All";
+let currentSearch = "";
+let currentSort = "newest";
+let addMode = "link";
+
+// ── Supabase ─────────────────────────────────────────────────────────────────
+const headers = () => ({
+  "Content-Type": "application/json",
+  "apikey": SUPABASE_KEY,
+  "Authorization": `Bearer ${SUPABASE_KEY}`,
+});
+
+async function dbFetch(path, opts = {}) {
+  const res = await fetch(SUPABASE_URL + "/rest/v1" + path, {
+    ...opts,
+    headers: { ...headers(), "Prefer": "return=representation", ...(opts.headers || {}) },
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    let msg = text;
+    try { msg = JSON.parse(text).message || JSON.parse(text).hint || text; } catch {}
+    throw new Error(res.status + ": " + msg);
+  }
+  return text ? JSON.parse(text) : null;
+}
+
+async function loadItems() {
+  showLoading();
+  try {
+    items = await dbFetch("/vision_board?order=added_at.desc&select=*") || [];
+    renderAll();
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+async function insertItem(row) {
+  const result = await dbFetch("/vision_board", { method: "POST", body: JSON.stringify(row) });
+  return Array.isArray(result) ? result[0] : result;
+}
+
+async function updateItem(id, patch) {
+  await dbFetch(`/vision_board?id=eq.${id}`, {
+    method: "PATCH", body: JSON.stringify(patch),
+    headers: { "Prefer": "return=minimal" }
+  });
+}
+
+async function deleteItem(id) {
+  await dbFetch(`/vision_board?id=eq.${id}`, {
+    method: "DELETE",
+    headers: { "Prefer": "return=minimal" }
+  });
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderAll() {
+  updateVoteTotals();
+  updateCatCounts();
+  renderGrid();
+}
+
+function updateVoteTotals() {
+  ["A","B","C"].forEach(l => {
+    document.getElementById("total-" + l).textContent =
+      items.reduce((s, i) => s + (i.votes?.[l] || 0), 0);
+  });
+  const n = items.length;
+  document.getElementById("items-count").textContent = n + " idea" + (n !== 1 ? "s" : "") + " saved";
+}
+
+function updateCatCounts() {
+  CATEGORIES.forEach(cat => {
+    const el = document.querySelector(`.cat-count[data-cat="${cat}"]`);
+    if (el) el.textContent = "(" + items.filter(i => i.category === cat).length + ")";
+  });
+}
+
+function getFiltered() {
+  return items
+    .filter(i => activeCategory === "All" || i.category === activeCategory)
+    .filter(i => !currentSearch || i.title.toLowerCase().includes(currentSearch.toLowerCase()) || (i.url || "").toLowerCase().includes(currentSearch.toLowerCase()))
+    .sort((a, b) => {
+      if (currentSort === "newest") return new Date(b.added_at) - new Date(a.added_at);
+      const ta = Object.values(a.votes || {}).reduce((s,x) => s+x, 0);
+      const tb = Object.values(b.votes || {}).reduce((s,x) => s+x, 0);
+      if (currentSort === "votes") return tb - ta;
+      if (currentSort === "A") return (b.votes?.A || 0) - (a.votes?.A || 0);
+      return 0;
+    });
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  const filtered = getFiltered();
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="state-box" style="grid-column:1/-1">
+      <div class="icon">🌿</div>
+      <h2>${items.length === 0 ? "Your vision board is empty" : "Nothing in this category yet"}</h2>
+      <p>${items.length === 0 ? "Tap + Add Idea to save your first link or photo" : "Try a different category"}</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map((item, i) => buildCard(item, i)).join("");
+  // Attach events after render
+  filtered.forEach(item => {
+    const card = document.querySelector(`.card[data-id="${item.id}"]`);
+    if (!card) return;
+    // Preview / expand click
+    card.querySelector(".card-img").addEventListener("click", (e) => {
+      if (item.photo_data) {
+        // If they clicked the link overlay, open URL instead
+        if (item.url && e.target.closest && e.target.closest("[data-link-overlay]")) {
+          window.open(item.url, "_blank");
+        } else {
+          openLightbox(item);
+        }
+      } else {
+        window.open(item.url, "_blank");
+      }
+    });
+    // Screenshot img load/error
+    const previewImg = card.querySelector("img.preview");
+    if (previewImg) {
+      previewImg.addEventListener("load", () => { previewImg.classList.add("loaded"); card.querySelector(".fallback") && (card.querySelector(".fallback").style.display = "none"); });
+      previewImg.addEventListener("error", () => { previewImg.remove(); });
+    }
+    // Vote buttons
+    card.querySelectorAll(".vote-btn").forEach(btn => {
+      btn.addEventListener("click", () => handleVote(item, btn.dataset.vote));
+    });
+    // Remove
+    card.querySelector(".remove-btn").addEventListener("click", () => handleDelete(item.id));
+  });
+}
+
+function buildCard(item, idx) {
+  const cat = item.category;
+  const color = CAT_COLORS[cat] || "#888";
+  const myVote = item.user_votes?.[currentUser];
+  const isPhoto = item.type === "photo" || item.type === "both";
+  const dateStr = new Date(item.added_at).toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+
+  // Vote bar
+  const total = VOTES_CONFIG.reduce((s, v) => s + (item.votes?.[v.label] || 0), 0);
+  const voteBarHtml = total === 0
+    ? `<div class="vote-no">No votes yet</div>`
+    : `<div class="vote-bar-wrap">
+        <div class="vote-bar-track">
+          ${VOTES_CONFIG.map(v => `<div class="vote-bar-seg" style="width:${((item.votes?.[v.label]||0)/total*100)}%;background:${v.color}"></div>`).join("")}
+        </div>
+        <div class="vote-bar-labels">
+          ${VOTES_CONFIG.map(v => `<span class="vote-bar-label" style="color:${v.color}">${v.label} · ${item.votes?.[v.label]||0}</span>`).join("")}
+        </div>
+      </div>`;
+
+  // Vote buttons
+  const voteBtnsHtml = `<div class="vote-btns">
+    ${VOTES_CONFIG.map(v => {
+      const active = myVote === v.label;
+      return `<button class="vote-btn" data-vote="${v.label}" style="border-color:${active ? v.color : "#ece7e0"};background:${active ? v.bg : "#faf8f5"};color:${active ? v.color : "#bbb"}">${v.label}</button>`;
+    }).join("")}
+  </div>`;
+
+  // Image area
+  let imgHtml = "";
+  const hasPhoto = item.photo_data;
+  const hasUrl = item.url;
+
+  if (hasPhoto) {
+    // Show uploaded photo — with optional link overlay if URL also exists
+    imgHtml = `<img src="${item.photo_data}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`;
+    if (hasUrl) {
+      const domain = (() => { try { return new URL(item.url).hostname.replace("www.",""); } catch { return item.url; } })();
+      const favicon = `https://www.google.com/s2/favicons?domain=${(() => { try { return new URL(item.url).origin; } catch { return ""; } })()}&sz=64`;
+      imgHtml += `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.55));padding:8px 10px 8px;display:flex;align-items:center;gap:5px;z-index:3">
+        <img src="${favicon}" alt="" style="width:13px;height:13px" onerror="this.style.display='none'">
+        <span style="font-size:10px;color:rgba(255,255,255,0.85);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${domain}</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.5);margin-left:auto">↗ open link</span>
+      </div>`;
+    }
+  } else {
+    // Link only — show screenshot
+    const screenshot = `https://api.microlink.io/?url=${encodeURIComponent(item.url)}&screenshot=true&meta=false&embed=screenshot.url`;
+    const favicon = `https://www.google.com/s2/favicons?domain=${(() => { try { return new URL(item.url).origin; } catch { return item.url; } })()}&sz=64`;
+    const domain = (() => { try { return new URL(item.url).hostname.replace("www.",""); } catch { return item.url; } })();
+    imgHtml = `
+      <img class="preview" src="${screenshot}" alt="">
+      <div class="fallback">
+        <span class="emoji">${CAT_EMOJIS[cat] || "🔗"}</span>
+        <div class="domain-pill">
+          <img src="${favicon}" alt="" onerror="this.style.display='none'">
+          <span>${domain}</span>
+        </div>
+      </div>`;
+  }
+
+  return `<div class="card" data-id="${item.id}" style="animation-delay:${Math.min(idx*0.04,0.35)}s">
+    <div class="card-img" style="background:${color}18">
+      ${imgHtml}
+      <div class="cat-pill" style="background:${color}">${cat.toUpperCase()}</div>
+      ${isPhoto ? `<div class="photo-badge">📷</div>` : ""}
+      ${myVote ? `<div class="my-vote-badge" style="background:${VOTES_CONFIG.find(v=>v.label===myVote)?.color}">${myVote}</div>` : ""}
+    </div>
+    <div class="card-body">
+      ${item.url
+        ? `<a class="card-title" href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.title}</a>
+           <div class="card-domain">
+             <img src="https://www.google.com/s2/favicons?domain=${(() => { try { return new URL(item.url).origin; } catch { return ""; } })()}&sz=64" alt="" onerror="this.style.display='none'">
+             <span>${(() => { try { return new URL(item.url).hostname.replace("www.",""); } catch { return ""; } })()}</span>
+           </div>`
+        : `<div class="card-title">${item.title}</div>`
+      }
+      <div class="card-meta"><strong>${item.added_by}</strong> · ${dateStr}</div>
+      ${voteBarHtml}
+      ${voteBtnsHtml}
+    </div>
+    <div class="card-footer">
+      <button class="remove-btn">✕ remove</button>
+    </div>
+  </div>`;
+}
+
+function showLoading() {
+  document.getElementById("grid").innerHTML = `<div class="state-box" style="grid-column:1/-1">
+    <div class="icon">🏕️</div><h2>Loading your board...</h2>
+  </div>`;
+}
+
+function showError(msg) {
+  document.getElementById("grid").innerHTML = `<div class="error-box" style="grid-column:1/-1">
+    <div class="icon">⚠️</div>
+    <h2>Database not connected</h2>
+    <div class="err-msg">${msg}</div>
+    <p style="font-size:13px;color:#aaa">Make sure the <strong>vision_board</strong> table exists in Supabase with RLS policies enabled.</p>
+    <button class="retry-btn" onclick="loadItems()">Retry</button>
+  </div>`;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function handleVote(item, vote) {
+  const prev = item.user_votes?.[currentUser];
+  const votes = { ...item.votes };
+  const user_votes = { ...item.user_votes };
+  if (prev) votes[prev] = Math.max(0, (votes[prev] || 0) - 1);
+  if (prev === vote) { delete user_votes[currentUser]; }
+  else { votes[vote] = (votes[vote] || 0) + 1; user_votes[currentUser] = vote; }
+  // Optimistic
+  const idx = items.findIndex(i => i.id === item.id);
+  if (idx !== -1) { items[idx] = { ...items[idx], votes, user_votes }; renderAll(); }
+  try { await updateItem(item.id, { votes, user_votes }); }
+  catch(e) { alert("Vote save failed: " + e.message); loadItems(); }
+}
+
+async function handleDelete(id) {
+  if (!confirm("Remove this idea from the board?")) return;
+  items = items.filter(i => i.id !== id);
+  renderAll();
+  try { await deleteItem(id); }
+  catch(e) { alert("Delete failed: " + e.message); loadItems(); }
+}
+
+function openLightbox(item) {
+  document.getElementById("lightbox-img").src = item.photo_data;
+  document.getElementById("lightbox-title").textContent = item.title;
+  document.getElementById("lightbox-meta").textContent = item.added_by + " · " + item.category;
+  document.getElementById("lightbox").classList.add("open");
+}
+
+// ── Add item ──────────────────────────────────────────────────────────────────
+function smartTitle(url) {
+  try {
+    const u = new URL(url);
+    const seg = u.pathname.replace(/\/$/, "").split("/").filter(Boolean).pop() || "";
+    const cleaned = seg.replace(/[-_]/g," ").replace(/\.[^.]+$/,"").trim();
+    return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : u.hostname.replace("www.","");
+  } catch { return url; }
+}
+
+// ── Attached photos state ────────────────────────────────────────────────────
+let attachedPhotos = []; // [{dataUrl, name}]
+
+function readFile(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file);
+  });
+}
+
+function renderPhotoPreviews() {
+  const wrap = document.getElementById("photo-previews");
+  const label = document.getElementById("photo-attach-label");
+  if (!attachedPhotos.length) {
+    wrap.innerHTML = "";
+    wrap.style.display = "none";
+    label.textContent = "Optional — tap to choose image(s)";
+    return;
+  }
+  label.textContent = attachedPhotos.length + " photo" + (attachedPhotos.length > 1 ? "s" : "") + " attached";
+  wrap.style.display = "flex";
+  wrap.innerHTML = attachedPhotos.map((p, i) =>
+    `<div style="position:relative;flex-shrink:0">
+      <img src="${p.dataUrl}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid #e0d8ce">
+      <button onclick="removePhoto(${i})" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#c00;color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+    </div>`
+  ).join("");
+}
+
+window.removePhoto = function(i) {
+  attachedPhotos.splice(i, 1);
+  renderPhotoPreviews();
+};
+
+document.getElementById("photo-attach-area").addEventListener("click", () => {
+  document.getElementById("file-input").click();
+});
+
+document.getElementById("file-input").addEventListener("change", async (e) => {
+  const files = Array.from(e.target.files);
+  for (const file of files) {
+    const dataUrl = await readFile(file);
+    attachedPhotos.push({ dataUrl, name: file.name });
+  }
+  renderPhotoPreviews();
+  e.target.value = "";
+});
+
+document.getElementById("save-btn").addEventListener("click", async () => {
+  let url = document.getElementById("url-input").value.trim();
+  const titleInput = document.getElementById("title-input").value.trim();
+  const category = document.getElementById("link-cat-select").value;
+
+  if (!url && !attachedPhotos.length) {
+    alert("Please add a URL, a photo, or both.");
+    return;
+  }
+  if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+
+  const btn = document.getElementById("save-btn");
+  btn.disabled = true; btn.textContent = "Saving...";
+
+  try {
+    if (attachedPhotos.length > 0) {
+      // One card per photo (with optional shared URL)
+      for (const photo of attachedPhotos) {
+        const title = titleInput || photo.name.replace(/\.[^.]+$/, "") || (url ? smartTitle(url) : "Photo idea");
+        const row = {
+          type: url ? "both" : "photo",
+          url: url || null,
+          title,
+          photo_data: photo.dataUrl,
+          category,
+          added_by: currentUser,
+          votes: {A:0,B:0,C:0},
+          user_votes: {}
+        };
+        const inserted = await insertItem(row);
+        items.unshift(inserted);
+      }
+    } else {
+      // Link only
+      const title = titleInput || smartTitle(url);
+      const row = { type:"link", url, title, photo_data: null, category, added_by: currentUser, votes:{A:0,B:0,C:0}, user_votes:{} };
+      const inserted = await insertItem(row);
+      items.unshift(inserted);
+    }
+    renderAll();
+    document.getElementById("url-input").value = "";
+    document.getElementById("title-input").value = "";
+    attachedPhotos = [];
+    renderPhotoPreviews();
+    document.getElementById("add-panel").classList.remove("open");
+    document.getElementById("add-btn").textContent = "+ Add Idea";
+  } catch(e) { alert("Save failed: " + e.message); }
+
+  btn.disabled = false; btn.textContent = "Save Idea";
+});
+
+document.getElementById("url-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("save-btn").click();
+});
+
+// ── UI Controls ───────────────────────────────────────────────────────────────
+// Populate category select
+CATEGORIES.forEach(cat => {
+  const opt = document.createElement("option");
+  opt.value = cat; opt.textContent = cat;
+  document.getElementById("link-cat-select").appendChild(opt);
+});
+document.getElementById("link-cat-select").value = "General";
+
+document.getElementById("add-btn").addEventListener("click", () => {
+  const panel = document.getElementById("add-panel");
+  const isOpen = panel.classList.contains("open");
+  panel.classList.toggle("open");
+  document.getElementById("add-btn").textContent = isOpen ? "+ Add Idea" : "✕ Close";
+});
+
+document.querySelectorAll(".cat-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    activeCategory = tab.dataset.cat;
+    document.querySelectorAll(".cat-tab").forEach(t => t.classList.toggle("active", t.dataset.cat === activeCategory));
+    renderGrid();
+  });
+});
+
+document.getElementById("user-select").addEventListener("change", e => {
+  currentUser = e.target.value;
+  document.getElementById("user-avatar").textContent = currentUser[0];
+  renderGrid();
+});
+
+document.getElementById("search-input").addEventListener("input", e => {
+  currentSearch = e.target.value;
+  renderGrid();
+});
+
+document.getElementById("sort-select").addEventListener("change", e => {
+  currentSort = e.target.value;
+  renderGrid();
+});
+
+document.getElementById("lightbox").addEventListener("click", e => {
+  if (e.target === document.getElementById("lightbox")) document.getElementById("lightbox").classList.remove("open");
+});
+document.getElementById("lightbox-close").addEventListener("click", () => {
+  document.getElementById("lightbox").classList.remove("open");
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadItems();
+</script>
+</body>
+</html>
