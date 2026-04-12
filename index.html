@@ -269,30 +269,55 @@ let currentSort = "newest";
 let addMode = "link";
 
 // ── Supabase ─────────────────────────────────────────────────────────────────
-const headers = () => ({
+const mkHeaders = (extra = {}) => ({
   "Content-Type": "application/json",
   "apikey": SUPABASE_KEY,
   "Authorization": `Bearer ${SUPABASE_KEY}`,
+  "Prefer": "return=representation",
+  ...extra,
 });
 
-async function dbFetch(path, opts = {}) {
-  const res = await fetch(SUPABASE_URL + "/rest/v1" + path, {
-    ...opts,
-    headers: { ...headers(), "Prefer": "return=representation", ...(opts.headers || {}) },
-  });
-  const text = await res.text();
-  if (!res.ok) {
-    let msg = text;
-    try { msg = JSON.parse(text).message || JSON.parse(text).hint || text; } catch {}
-    throw new Error(res.status + ": " + msg);
+async function dbFetch(path, opts = {}, attempt = 1) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000); // 12s timeout
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1" + path, {
+      signal: controller.signal,
+      ...opts,
+      headers: mkHeaders(opts.headers || {}),
+    });
+    clearTimeout(timer);
+    const text = await res.text();
+    if (!res.ok) {
+      let msg = text;
+      try { const j = JSON.parse(text); msg = j.message || j.hint || j.details || text; } catch {}
+      // Retry on timeout errors up to 3 times
+      if ((msg.includes("timeout") || msg.includes("canceling")) && attempt < 3) {
+        await new Promise(r => setTimeout(r, 1000 * attempt));
+        return dbFetch(path, opts, attempt + 1);
+      }
+      throw new Error(res.status + ": " + msg);
+    }
+    return text ? JSON.parse(text) : null;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === "AbortError") {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, 1000 * attempt));
+        return dbFetch(path, opts, attempt + 1);
+      }
+      throw new Error("Request timed out after 3 attempts. Check your Supabase project is active.");
+    }
+    throw e;
   }
-  return text ? JSON.parse(text) : null;
 }
 
 async function loadItems() {
   showLoading();
   try {
-    items = await dbFetch("/vision_board?order=added_at.desc&select=*") || [];
+    // Fetch without ordering first (avoids index scan timeout), sort client-side
+    items = await dbFetch("/vision_board?select=*&limit=200") || [];
+    items.sort((a, b) => new Date(b.added_at) - new Date(a.added_at));
     renderAll();
   } catch(e) {
     showError(e.message);
@@ -307,14 +332,14 @@ async function insertItem(row) {
 async function updateItem(id, patch) {
   await dbFetch(`/vision_board?id=eq.${id}`, {
     method: "PATCH", body: JSON.stringify(patch),
-    headers: { "Prefer": "return=minimal" }
+    headers: { "Prefer": "return=minimal" },
   });
 }
 
 async function deleteItem(id) {
   await dbFetch(`/vision_board?id=eq.${id}`, {
     method: "DELETE",
-    headers: { "Prefer": "return=minimal" }
+    headers: { "Prefer": "return=minimal" },
   });
 }
 
